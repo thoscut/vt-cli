@@ -14,6 +14,7 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -156,6 +157,7 @@ func NewAPIClient() (*utils.APIClient, error) {
 type ObjectPrinter struct {
 	client *utils.APIClient
 	cmd    *cobra.Command
+	w      *bufio.Writer
 }
 
 // NewObjectPrinter ...
@@ -164,7 +166,10 @@ func NewObjectPrinter(cmd *cobra.Command) (*ObjectPrinter, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ObjectPrinter{client: client, cmd: cmd}, nil
+	return &ObjectPrinter{
+		client: client,
+		cmd:    cmd,
+		w:      bufio.NewWriter(ansi.NewAnsiStdout())}, nil
 }
 
 // Print ...
@@ -285,5 +290,9 @@ func (p *ObjectPrinter) PrintObjects(objs []*vt.Object) error {
 		list = append(list, map[string]interface{}{key: m})
 	}
 
-	return yaml.NewColorEncoder(ansi.NewAnsiStdout(), colorScheme).Encode(list)
+	if err := yaml.NewColorEncoder(p.w, colorScheme).Encode(list); err != nil {
+		return err
+	}
+
+	return p.w.Flush()
 }
