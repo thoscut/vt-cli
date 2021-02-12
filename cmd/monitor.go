@@ -370,16 +370,19 @@ func runMonitorItemUpload(cmd *cobra.Command, args []string) error {
 				return nil
 			})
 
-		// Confirm user want to create those files in remote
 		fmt.Println("Following files are going to be created:")
 		for _, params := range filesParams {
 			fmt.Println(params.filePath + " -> " + params.remotePath)
 		}
-		var s string
-		fmt.Println("Confirm(y/n)?")
-		fmt.Scanln(&s)
-		if s != "y" {
-			return nil
+
+		// Confirm user want to create those files in remote
+		if !viper.GetBool("force") {
+			var s string
+			fmt.Println("Confirm(y/n)?")
+			fmt.Scanln(&s)
+			if s != "y" {
+				return nil
+			}
 		}
 
 		go func() {
@@ -433,6 +436,7 @@ func NewMonitorItemsUploadCmd() *cobra.Command {
 		RunE:    runMonitorItemUpload,
 	}
 	addThreadsFlag(cmd.Flags())
+	addForceFlag(cmd.Flags())
 	return cmd
 }
 

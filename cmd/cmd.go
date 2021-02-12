@@ -68,6 +68,12 @@ func addThreadsFlag(flags *pflag.FlagSet) {
 		"number of threads working in parallel")
 }
 
+func addForceFlag(flags *pflag.FlagSet) {
+	flags.BoolP(
+		"force", "f", false,
+		"force yes on all confirmations")
+}
+
 func addIDOnlyFlag(flags *pflag.FlagSet) {
 	flags.BoolP(
 		"identifiers-only", "I", false,
